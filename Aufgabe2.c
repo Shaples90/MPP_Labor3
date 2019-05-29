@@ -32,14 +32,14 @@ void main(void)
 		GPIO_PORTK_DATA_R &= ~0xFF;
 		unsigned short Kout = 0, bit = 0;
 
-		for(bit = 0x80; 0x1; bit = bit / 2)
+		for(bit = 0x80; 0x01; bit = bit / 2)
 		{
-			Kout = Kout | bit;
+			Kout |= bit;
 			GPIO_PORTK_DATA_R |= Kout;
 			wait(500000);
-			if((GPIO_PORTD_AHB_DATA_R & 0x01) == 1)
+			if((GPIO_PORTD_AHB_DATA_R & 0x01) == 0x01)
 			{
-				Kout = Kout & (~bit);
+				Kout &= ~bit;
 			}
 		}
 		printf("%d\n", Kout);
