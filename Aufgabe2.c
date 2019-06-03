@@ -1,3 +1,4 @@
+
 // Laborversuch 3 Aufgabe 2
 
 #include "tm4c1294ncpdt.h"
@@ -12,7 +13,7 @@ void wait(unsigned long timevalue)
 
 void main(void)
 {
-	SYSCTL_RCGCGPIO_R |= ((1 << 3) | (1 << 9) | (1 << 10) | (1 << 11));			
+	SYSCTL_RCGCGPIO_R |= ((1 << 3) | (1 << 9) | (1 << 10) | (1 << 11));
 	while(!(SYSCTL_PRGPIO_R & ((1 << 3) | (1 << 9) | (1 << 10) | (1 << 11))));
 	GPIO_PORTD_AHB_DEN_R |= 0x3;
 	GPIO_PORTK_DEN_R |= 0xFF;
@@ -28,21 +29,31 @@ void main(void)
 
 	while(1)
 	{
-		unsigned short Kout = 0, bit = 0;
+		unsigned short bit = 0x80;
+		unsigned static short Kout = 0;
 
-		for(bit = 0x80; 0x01; bit = bit / 2)
+		while(bit >= 0x01)
 		{
-			Kout |= bit;
-			GPIO_PORTK_DATA_R |= Kout;
+			GPIO_PORTK_DATA_R |= bit;
 			wait(300);
-			if((GPIO_PORTD_AHB_DATA_R & 0x01) == 0x01)
+			if((GPIO_PORTD_AHB_DATA_R & 0x01))
 			{
 				Kout &= ~bit;
+				bit = bit / 2;
+				GPIO_PORTK_DATA_R &= ~0xFF;
+				wait(300);
 			}
 			else
+				Kout |= bit;
+				bit = bit / 2;
+				GPIO_PORTK_DATA_R &= ~0xFF;
+				wait(300);
 				continue;
 		}
-		printf("%d\n", Kout);
+		float VoltageStep = 0.019;
+	    float Ergebnis    = 0.0;
+		Ergebnis = Kout * VoltageStep;
+		printf("%f\n", Ergebnis);
 
 		/*GPIO_PORTK_DATA_R |= 0xFF;
 		wait(500000);
