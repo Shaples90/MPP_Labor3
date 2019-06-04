@@ -51,7 +51,7 @@ void main(void)
 				continue;
 		}
 		float VoltageStep = 0.019;
-	    float Ergebnis    = 0.0;
+	   float Ergebnis = 0.0;
 		Ergebnis = Kout * VoltageStep;
 		printf("%f\n", Ergebnis);
 
