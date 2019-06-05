@@ -21,10 +21,12 @@ void wait(unsigned long time)
    for (j = 0; j < time; j++);   // wait-loop
 }
 
+
+
 void ConfigPorts(void)
 {
-    SYSCTL_RCGCGPIO_R |= ((1 << 4) | (1 << 11));            // clock enable port D,L,M
-    while(!(SYSCTL_PRGPIO_R & ((1 << 4) | (1 << 11))));     // wait for port E,M clock
+    SYSCTL_RCGCGPIO_R |= ((1 << 4) | (1 << 11) | (1 << 3));            // clock enable port D,E,M
+    while(!(SYSCTL_PRGPIO_R & ((1 << 4) | (1 << 11) | (1 << 3))));     // wait for port D,E,M clock
     SYSCTL_RCGCADC_R |= (1 << 0);							// ADC0 active
     while(!(SYSCTL_PRADC_R & (1 << 0)));					// wait for ADC0 clock
 
@@ -33,6 +35,21 @@ void ConfigPorts(void)
     GPIO_PORTE_AHB_AMSEL_R |= (1 << 0);						// connect ADC0 with PE(0)
     GPIO_PORTM_DEN_R |= ((1 << 0) | (1 << 1));				// GPIO-Function activate for PM(1:0)
     GPIO_PORTM_DIR_R |= (1 << 0);							// PM(0) output-signal
+    GPIO_PORTD_AHB_DEN_R |= (1 << 0);
+    GPIO_PORTD_AHB_AFSEL_R |= (1 << 0);
+    GPIO_PORTD_AHB_PCTL_R = 0x03;
+
+    SYSCTL_RCGCTIMER_R |= (1 << 0);
+    while(!(SYSCTL_PRTIMER_R & (1 << 0)));
+    TIMER0_CTL_R &= ~0x01;
+    TIMER0_CFG_R = 0x04;
+
+    TIMER0_TAMR_R |= (1 << 3) | 0x02;
+    TIMER0_CTL_R |= (1 << 6);
+    TIMER0_TAILR_R = 48000 - 1;
+    TIMER0_TAMATCHR_R = 32000 - 1;
+	GPIO_PORTM_DATA_R |= 0x01;
+
 }
 
 void ConfigSampleSequencer(void)
@@ -74,6 +91,20 @@ void main(void)
     while (1)
     {
     	adcValue = adcIntern();
+    	if(adcValue < 1900)
+    	{
+    		TIMER0_TAMATCHR_R -= 500;
+
+    	}
+    	else if(adcValue > 2100)
+    	{
+    		TIMER0_TAMATCHR_R += 500;
+    	}
+    	else
+    	{
+    		continue;
+    	}
 		printf("%d\n", adcValue);
+
     }
 }
