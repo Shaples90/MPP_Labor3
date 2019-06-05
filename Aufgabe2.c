@@ -1,7 +1,5 @@
 /*Aufgabe 2:Wägeverfahren Suksessive Approximation
-
 * Mit Externen DAC wird ein Digitalvoltmeter eingerichtet
-
 */
 
 // Autor: Nikolas Rieder
@@ -34,9 +32,7 @@ void ConfigPorts(void)
 }
 
 /**
-
  * Erfassung der Spannung
-
  */
 
 unsigned char DACEXTERN(void)
@@ -66,15 +62,11 @@ unsigned char DACEXTERN(void)
         }
     }
     GPIO_PORTK_DATA_R &= 0x00;
-}
-
-return VOLT;
+    return VOLT;
 }
 
 /**
-
  * main.c
-
  */
 
 void main(void)
@@ -90,9 +82,13 @@ void main(void)
 
     while (1)
     {
-        measuredVoltageDigit = (DACEXTERN() / 8);
-        measuredVoltage = (measuredVoltageDigit * voltageStep) * 100;
-        printf("%d\n", measuredVoltage);
+    	while(!(GPIO_PORTD_AHB_DATA_R & 0x02))
+    	{
+    		measuredVoltageDigit = (DACEXTERN() / 8);
+    		measuredVoltage = (measuredVoltageDigit * voltageStep) * 100;
+    		printf("%d\n", measuredVoltage);
+    	}
     }
 }
+
 
