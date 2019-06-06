@@ -20,11 +20,11 @@ void ConfigPorts(void)
    GPIO_PORTE_AHB_DEN_R &= ~(1 << 0);						// GPIO-Function deactivate for PE(0)
    GPIO_PORTE_AHB_AFSEL_R |= (1 << 0);						// PE(0) for alternative function
    GPIO_PORTE_AHB_AMSEL_R |= (1 << 0);						// connect ADC0 with PE(0)
-   GPIO_PORTM_DEN_R |= (1 << 1);			               // GPIO-Function activate for PM(1)
-   GPIO_PORTM_DEN_R &= ~(1 << 0);                     // GPIO-Function deactivate for PM(0)
-   GPIO_PORTM_DIR_R |= 0x00;						         // PM(1) Input-signal
-   GPIO_PORTM_AFSEL_R |= (1 << 0);                    // PM(0) for alternate function
-   GPIO_PORTM_PCTL_R = 0x03;                          // connect TIMER2A with PM(0)
+   GPIO_PORTM_DEN_R |= ((1 << 1) | (1 << 0));			    // GPIO-Function enable for PM(1:0)
+   GPIO_PORTM_AFSEL_R |= (1 << 0);                    		// PM(0) for alternate function
+   GPIO_PORTM_PCTL_R = 0x03;                          		// connect TIMER2A with PM(0)
+   GPIO_PORTM_DIR_R |= ~0x02;
+
 }
 
 void ConfigSampleSequencer(void)
@@ -51,7 +51,7 @@ void ConfigTimer(void)
    TIMER2_TAMR_R |= ((1 << 3) | 0x02);                // PWM - mode, periodic
    TIMER2_CTL_R |= (1 << 6);                          // inverting
    TIMER2_TAILR_R = 16000 - 1;                        // interval-load-value for 1kHz
-   TIMER2_CTL_R |= 0x01;                              // TIMER2A enable
+   TIMER2_CTL_R |= 0x01;							  // TIMER2A enable
 }
 
 unsigned long adcIntern(void)
@@ -66,35 +66,37 @@ unsigned long adcIntern(void)
 
 void main(void)
 {
-   ConfigPorts();                                                                            
+   ConfigPorts();
    ConfigSampleSequencer();
    ConfigTimer();
 
-   unsigned long adcValue = 0;
+   unsigned long adcValue, adcValueOld = 0;
 
    while(1)
    {
-      adcValue = adcIntern();                                                             // voltage-value
+	   	adcValue = adcIntern();                                                             // voltage-value
 
-      if(((adcValue < 1900) || (adcValue > 2100)) && !(GPIO_PORTM_DATA_R & 0x02))         // analog-stick to left or right without sw
-      {
-         if(adcValue < 1900)                                                              // analog-stick to left
-            TIMER2_TAMATCHR_R -= 100;
-         else if(adcValue > 2100)                                                         // analog-stick to right
-            TIMER2_TAMATCHR_R += 100;
-         else
-            continue;
-      }
-      else if((adcValue >= 1900) && (adcValue <= 2100) && (GPIO_PORTM_DATA_R & 0x02))     // sw without moving analog-stick
-      {
-         if(GPIO_PORTM_DATA_R & 0x02)                                                     // sw pressed
-            TIMER2_TAMATCHR_R = (16000 - 1) * 0.95;
-         else                                                                             // sw not pressed
-            TIMER2_TAMATCHR_R = (16000 - 1) * 0.05;
-      }
-      else
-         continue;                 
+		/*if(!(GPIO_PORTM_DATA_R & 0x02) && (adcValue > 1900) && (adcValue < 2100))         // analog-stick to left or right without sw
+		{
+			TIMER2_TAMATCHR_R = (16000 - 1) * 0.05;
+		}
+		else if(GPIO_PORTM_DATA_R & 0x02)
+		{
+			TIMER2_TAMATCHR_R = (16000 - 1) * 0.95;
+		}*/
+		if(!(GPIO_PORTM_DATA_R & 0x02) && (adcValue < 1900) || (adcValue > 2100))
+		{
+			if((adcValue < 1900))                                                              // analog-stick to left
+			  TIMER2_TAMATCHR_R -= 100;
+		   else if((adcValue > 2100))                                                         // analog-stick to right
+			  TIMER2_TAMATCHR_R += 100;
+		   else
+			   continue;
+		}
 
-      printf("%d\n", adcValue);     // voltage-value on console
+		printf("%d\n", adcValue);     // voltage-value on console
+
+		adcValueOld = adcValue;
    }
 }
+
