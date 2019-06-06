@@ -29,16 +29,16 @@ void ConfigPorts(void)
 
 void ConfigSampleSequencer(void)
 {
-	ADC0_ACTSS_R &= ~0x0F;				   // disable all 4 sequencers of ADC0
+	ADC0_ACTSS_R &= ~0x0F;				                  // disable all 4 sequencers of ADC0
 
-	SYSCTL_PLLFREQ0_R |= (1 << 23);     //**********************************
-	while(!(SYSCTL_PLLSTAT_R & 0x01));  //    Magic Code
-	ADC0_CC_R |= 0x01;                  //
-	SYSCTL_PLLFREQ0_R &= ~(1 << 23);    //**********************************
-   
-	ADC0_SSMUX0_R |= 0x00000003;   		// sequencer 0, channel AIN3
-	ADC0_SSCTL0_R |= 0x00000002;		   // define sequence length
-	ADC0_ACTSS_R |= 0x01;				   // enable sequencer 0 ADC 0
+	SYSCTL_PLLFREQ0_R |= (1 << 23);                    //**********************************
+	while(!(SYSCTL_PLLSTAT_R & 0x01));                 //    Magic Code
+	ADC0_CC_R |= 0x01;                                 //
+	SYSCTL_PLLFREQ0_R &= ~(1 << 23);                   //**********************************
+
+	ADC0_SSMUX0_R |= 0x00000003;   		               // sequencer 0, channel AIN3
+	ADC0_SSCTL0_R |= 0x00000002;		                  // define sequence length
+	ADC0_ACTSS_R |= 0x01;				                  // enable sequencer 0 ADC 0
 }
 
 void ConfigTimer(void)
@@ -59,10 +59,10 @@ unsigned long adcIntern(void)
 {
 	unsigned long data;
 
-	ADC0_PSSI_R |= 0x01;					         // start converting ADC0
-	while(ADC0_SSFSTAT0_R & (1 << 8));		   // wait for FIFO "FULL"
-	data = (unsigned long) ADC0_SSFIFO0_R;    // read FIFO-Data
-	return data * (5000.0/4096) + 0.5;        // return Voltage in mV
+	ADC0_PSSI_R |= 0x01;					                  // start converting ADC0
+	while(ADC0_SSFSTAT0_R & (1 << 8));		            // wait for FIFO "FULL"
+	data = (unsigned long) ADC0_SSFIFO0_R;             // read FIFO-Data
+	return data * (5000.0/4096) + 0.5;                 // return Voltage in mV
 }
 
 void main(void)
