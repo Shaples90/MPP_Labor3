@@ -50,8 +50,7 @@ void ConfigTimer(void)
 
    TIMER2_TAMR_R |= ((1 << 3) | 0x02);                // PWM - mode, periodic
    TIMER2_CTL_R |= (1 << 6);                          // inverting
-   TIMER2_TAILR_R = 48000 - 1;                        // interval-load-value
-   TIMER2_TAMATCHR_R = 32000 - 1;                     // match-value
+   TIMER2_TAILR_R = 16000 - 1;                        // interval-load-value for 1kHz
    TIMER2_CTL_R |= 0x01;                              // TIMER2A enable
 }
 
@@ -80,18 +79,18 @@ void main(void)
       if(((adcValue < 1900) || (adcValue > 2100)) && !(GPIO_PORTM_DATA_R & 0x02))         // analog-stick to left or right without sw
       {
          if(adcValue < 1900)                                                              // analog-stick to left
-            TIMER2_TAMATCHR_R -= 500;
+            TIMER2_TAMATCHR_R -= 100;
          else if(adcValue > 2100)                                                         // analog-stick to right
-            TIMER2_TAMATCHR_R += 500;
+            TIMER2_TAMATCHR_R += 100;
          else
             continue;
       }
-      else if(((adcValue >= 1900) && (adcValue <= 2100)) && (GPIO_PORTM_DATA_R & 0x02))   // sw without moving analog-stick
+      else if((adcValue >= 1900) && (adcValue <= 2100) && (GPIO_PORTM_DATA_R & 0x02))     // sw without moving analog-stick
       {
          if(GPIO_PORTM_DATA_R & 0x02)                                                     // sw pressed
-            TIMER2_TAMATCHR_R = 48000 - 1;
+            TIMER2_TAMATCHR_R = (16000 - 1) * 0.95;
          else                                                                             // sw not pressed
-            TIMER2_TAMATCHR_R = 0;
+            TIMER2_TAMATCHR_R = (16000 - 1) * 0.05;
       }
       else
          continue;                 
