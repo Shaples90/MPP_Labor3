@@ -76,27 +76,27 @@ void main(void)
 
    while(1)
    {
-      adcValue = adcIntern();
+      adcValue = adcIntern();                                                             // voltage-value
 
-      if(((adcValue < 1900) || (adcValue > 2100)) && !(GPIO_PORTM_DATA_R & 0x02))
+      if(((adcValue < 1900) || (adcValue > 2100)) && !(GPIO_PORTM_DATA_R & 0x02))         // analog-stick to left or right without sw
       {
          analogStickStatus = 0;
-         if((adcValue < 1900) && (analogStickStatus == 0))
+         if((adcValue < 1900) && (analogStickStatus == 0))                                // analog-stick to left
             TIMER2_TAMATCHR_R -= 500;
-         else if((adcValue > 2100) && (analogStickStatus == 0))
+         else if((adcValue > 2100) && (analogStickStatus == 0))                           // analog-stick to right
             TIMER2_TAMATCHR_R += 500;
       }
-      else if(((adcValue >= 1900) && (adcValue <= 2100)) && (GPIO_PORTM_DATA_R & 0x02))
+      else if(((adcValue >= 1900) && (adcValue <= 2100)) && (GPIO_PORTM_DATA_R & 0x02))   // sw without moving analog-stick
       {
          analogStickStatus = 1;
-         if((GPIO_PORTM_DATA_R & 0x02) && (analogStickStatus == 1))
+         if((GPIO_PORTM_DATA_R & 0x02) && (analogStickStatus == 1))                       // sw pressed
             TIMER2_TAMATCHR_R = 48000 - 1;
-         else if(!(GPIO_PORTM_DATA_R & 0x02) && (analogStickStatus))
+         else if(!(GPIO_PORTM_DATA_R & 0x02) && (analogStickStatus))                      // sw not pressed
             TIMER2_TAMATCHR_R = 0;
       }
       else
-         continue;
+         continue;                 
 
-      printf("%d\n", adcValue);
+      printf("%d\n", adcValue);     // voltage-value on console
    }
 }
