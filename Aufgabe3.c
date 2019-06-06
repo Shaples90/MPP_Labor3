@@ -32,7 +32,7 @@ void ConfigSampleSequencer(void)
 	ADC0_ACTSS_R &= ~0x0F;				   // disable all 4 sequencers of ADC0
 
 	SYSCTL_PLLFREQ0_R |= (1 << 23);     //**********************************
-	while(!(SYSCTL_PLLSTAT_R & 0x01));  // Magic Code
+	while(!(SYSCTL_PLLSTAT_R & 0x01));  //    Magic Code
 	ADC0_CC_R |= 0x01;                  //
 	SYSCTL_PLLFREQ0_R &= ~(1 << 23);    //**********************************
    
