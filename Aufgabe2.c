@@ -30,7 +30,6 @@ void ConfigPorts(void)
 
 unsigned char DACEXTERN(void)
 {
-
 	unsigned char VOLT, BIT = 0x80;
 
     while(BIT >= 0x01)                                  // compare Uin with Uout until bit = 0x01
@@ -78,9 +77,9 @@ void main(void)
             thirdDigit = (measuredVoltage / 10) - (secondDigit * 10) - (firstDigit * 100);
             forthDigit = measuredVoltage - (thirdDigit * 10) - (secondDigit * 100) - (firstDigit * 1000);
     	}
-        GPIO_PORTL_DATA_R = (1 << 0);
+        GPIO_PORTL_DATA_R = (1 << 0);                           // PL(0) HIGH for enabling first display
         GPIO_PORTM_DATA_R |= (forthDigit | (thirdDigit << 4));  // display third and forth digit
-        GPIO_PORTL_DATA_R = (1 << 1);
+        GPIO_PORTL_DATA_R = (1 << 1);                           // PL(1) HIGH for enabling second display
         GPIO_PORTM_DATA_R |= (secondDigit | (firstDigit << 4)); // display first and second digit
     }
 }

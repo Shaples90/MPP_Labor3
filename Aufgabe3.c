@@ -72,7 +72,6 @@ void main(void)
    ConfigTimer();
 
    unsigned long adcValue = 0;
-   int analogStickStatus = 0;
 
    while(1)
    {
@@ -80,18 +79,18 @@ void main(void)
 
       if(((adcValue < 1900) || (adcValue > 2100)) && !(GPIO_PORTM_DATA_R & 0x02))         // analog-stick to left or right without sw
       {
-         analogStickStatus = 0;
-         if((adcValue < 1900) && (analogStickStatus == 0))                                // analog-stick to left
+         if(adcValue < 1900)                                                              // analog-stick to left
             TIMER2_TAMATCHR_R -= 500;
-         else if((adcValue > 2100) && (analogStickStatus == 0))                           // analog-stick to right
+         else if(adcValue > 2100)                                                         // analog-stick to right
             TIMER2_TAMATCHR_R += 500;
+         else
+            continue;
       }
       else if(((adcValue >= 1900) && (adcValue <= 2100)) && (GPIO_PORTM_DATA_R & 0x02))   // sw without moving analog-stick
       {
-         analogStickStatus = 1;
-         if((GPIO_PORTM_DATA_R & 0x02) && (analogStickStatus == 1))                       // sw pressed
+         if(GPIO_PORTM_DATA_R & 0x02)                                                     // sw pressed
             TIMER2_TAMATCHR_R = 48000 - 1;
-         else if(!(GPIO_PORTM_DATA_R & 0x02) && (analogStickStatus))                      // sw not pressed
+         else                                                                             // sw not pressed
             TIMER2_TAMATCHR_R = 0;
       }
       else
