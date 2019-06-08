@@ -28,10 +28,10 @@ void ConfigPorts(void)
 
 unsigned char DACEXTERN(void)
 {
-	unsigned char BIT = 0x80;                           // first MSB
-	unsigned char VOLT = 0x80;
+    unsigned char BIT = 0x80;                           // first MSB
+    unsigned char VOLT = 0x80;
 
-	GPIO_PORTK_DATA_R &= ~0xFF;                         // clear PK(7:0)
+    GPIO_PORTK_DATA_R &= ~0xFF;                         // clear PK(7:0)
 
     while(BIT >= 0x01)                                  // loop: compare Uin with Uout until bit = 0x01
     {
@@ -68,9 +68,9 @@ void main(void)
     {
     	while(!(GPIO_PORTD_AHB_DATA_R & 0x02))                                  // loop: measure voltage unless STOP-button is pressed
     	{
-    		measuredVoltageDigit = (DACEXTERN());                               // voltage result in binary 
-    		measuredVoltage = (measuredVoltageDigit * voltageStep) * 1000;      // convert voltage in mV
-    		printf("%d\n", measuredVoltage);
+    	    measuredVoltageDigit = (DACEXTERN());                               // voltage result in binary 
+    	    measuredVoltage = (measuredVoltageDigit * voltageStep) * 1000;      // convert voltage in mV
+    	    printf("%d\n", measuredVoltage);
 
             firstDigit = measuredVoltage / 1000;
             secondDigit = (measuredVoltage / 100) - (firstDigit * 10);
@@ -78,11 +78,11 @@ void main(void)
             forthDigit = measuredVoltage - (thirdDigit * 10) - (secondDigit * 100) - (firstDigit * 1000);
 
             GPIO_PORTL_DATA_R = (1 << 0);                                       // PL(0) HIGH for enabling first display
-			GPIO_PORTM_DATA_R = (forthDigit | (thirdDigit << 4));               // display third and forth digit
-			wait(500);
-			GPIO_PORTL_DATA_R = (1 << 1);                                       // PL(1) HIGH for enabling second display
-			GPIO_PORTM_DATA_R = (secondDigit | (firstDigit << 4));              // display first and second digit
-			wait(500);
+	    GPIO_PORTM_DATA_R = (forthDigit | (thirdDigit << 4));               // display third and forth digit
+	    wait(500);
+	    GPIO_PORTL_DATA_R = (1 << 1);                                       // PL(1) HIGH for enabling second display
+	    GPIO_PORTM_DATA_R = (secondDigit | (firstDigit << 4));              // display first and second digit
+	    wait(500);
     	}
     }
 }
